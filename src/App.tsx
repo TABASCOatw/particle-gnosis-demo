@@ -1,57 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { ParticleNetwork } from '@particle-network/auth';
-import { ParticleProvider } from '@particle-network/provider';
+import { useEthereum, useConnect, useAuthCore } from '@particle-network/auth-core-modal';
 import { Gnosis } from '@particle-network/chains';
 import { AAWrapProvider, SmartAccount } from '@particle-network/aa';
 import { ethers } from 'ethers';
+import { notification } from 'antd';
 
-const config = {
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  clientKey: process.env.REACT_APP_CLIENT_KEY,
-  appId: process.env.REACT_APP_APP_ID,
-};
-
-const particle = new ParticleNetwork({
-  ...config,
-  chainName: Gnosis.name,
-  chainId: Gnosis.id,
-  wallet: { displayWalletEntry: true }
-});
-
-const smartAccount = new SmartAccount(new ParticleProvider(particle.auth), {
-  ...config,
-  aaOptions: {
-    simple: [{ chainId: Gnosis.id, version: '1.0.0' }]
-  }
-});
-
-const customProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount), "any");
-
-particle.setERC4337({
-  name: 'SIMPLE',
-  version: '1.0.0'
-});
+import './App.css';
 
 const App = () => {
-  const [userInfo, setUserInfo] = useState(null);
+  const { provider } = useEthereum();
+  const { connect, disconnect } = useConnect();
+  const { userInfo } = useAuthCore();
+
+  const smartAccount = new SmartAccount(provider, {
+    projectId: process.env.REACT_APP_PROJECT_ID,
+    clientKey: process.env.REACT_APP_CLIENT_KEY,
+    appId: process.env.REACT_APP_APP_ID,
+    aaOptions: {
+      simple: [{ chainId: Gnosis.id, version: '1.0.0' }]
+    }
+  });
+
+  const customProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount), "any");
   const [balance, setBalance] = useState(null);
 
   useEffect(() => {
     if (userInfo) {
       fetchBalance();
     }
-  }, [userInfo]);
+  }, [userInfo, smartAccount, customProvider]);
 
   const fetchBalance = async () => {
     const address = await smartAccount.getAddress();
-    const balance = await customProvider.getBalance(address);
-    setBalance(ethers.utils.formatEther(balance));
+    const balanceResponse = await customProvider.getBalance(address);
+    setBalance(ethers.utils.formatEther(balanceResponse));
   };
 
-  const handleLogin = async (preferredAuthType) => {
-    const user = !particle.auth.isLogin() ? await particle.auth.login({preferredAuthType}) : particle.auth.getUserInfo();
-    setUserInfo(user);
-  }
+  const handleLogin = async (authType) => {
+    if (!userInfo) {
+      await connect({
+          socialType: authType,
+          chain: Gnosis,
+      });
+    }
+  };
 
   const executeUserOp = async () => {
     const signer = customProvider.getSigner();
@@ -61,22 +53,35 @@ const App = () => {
     };
     const txResponse = await signer.sendTransaction(tx);
     const txReceipt = await txResponse.wait();
-    console.log('Transaction hash:', txReceipt.transactionHash);
+    notification.success({
+      message: txReceipt.transactionHash
+    });
   };
 
   return (
     <div className="App">
+      <div className="logo-section">
+        <img src="https://i.imgur.com/EerK7MS.png" alt="Logo 1" className="logo logo-big" />
+        <img src="https://i.imgur.com/lqstix7.png" alt="Logo 2" className="logo logo-big" />
+      </div>
       {!userInfo ? (
-        <div>
-          <button onClick={() => handleLogin('google')}>Sign in with Google</button>
-          <button onClick={() => handleLogin('twitter')}>Sign in with Twitter</button>
-        </div>
+      <div className="login-section">
+        <button className="sign-button google-button" onClick={() => handleLogin('google')}>
+          <img src="https://i.imgur.com/nIN9P4A.png" alt="Google" className="icon"/>
+          Sign in with Google
+        </button>
+        <button className="sign-button twitter-button" onClick={() => handleLogin('twitter')}>
+          <img src="https://i.imgur.com/afIaQJC.png" alt="Twitter" className="icon"/>
+          Sign in with X
+        </button>
+      </div>
       ) : (
-        <div>
+        <div className="profile-card">
           <h2>{userInfo.name}</h2>
-          <div>
-            <small>{balance}</small>
-            <button onClick={executeUserOp}>Execute User Operation</button>
+          <div className="balance-section">
+            <small>{balance} xDAI</small>
+            <button className="sign-message-button" onClick={executeUserOp}>Execute User Operation</button>
+            <button className="disconnect-button" onClick={disconnect}>Logout</button>
           </div>
         </div>
       )}
