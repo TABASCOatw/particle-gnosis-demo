@@ -9,10 +9,10 @@
 
 ⚡️ ERC-4337 demo application showcasing utilization of Particle's Smart Wallet-as-a-Service facilitating full-stack account abstraction on Gnosis Mainnet (handling social login via MPC-TSS, creating a smart account, and pushing a user operation).
 
-Built using **Particle Auth**, **TypeScript**, **Particle AA SDK**
+Built using **Particle Auth Core**, **TypeScript**, **Particle AA SDK**
 
-## 🔑 Particle Auth
-Particle Auth, a component of Particle Network's Wallet-as-a-Service, enables seamless onboarding to an application-embedded MPC-TSS/AA wallet facilitated by social login, such as Google, GitHub, email, phone number, etc.
+## 🔑 Particle Auth Core
+Particle Auth Core, a component of Particle Network's Wallet-as-a-Service, enables seamless onboarding to an application-embedded MPC-TSS/AA wallet facilitated by social login, such as Google, GitHub, email, phone number, etc. - as an alternative to Particle Auth, the Auth Core SDK comes with more control over the modal itself, application-embedded popups rather than redirects, and so on.
 
 ##
 
