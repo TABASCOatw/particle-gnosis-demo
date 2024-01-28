@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEthereum, useConnect, useAuthCore } from '@particle-network/auth-core-modal';
 import { Gnosis } from '@particle-network/chains';
-import { AAWrapProvider, SmartAccount } from '@particle-network/aa';
+import { AAWrapProvider, SmartAccount, SendTransactionMode } from '@particle-network/aa';
 import { ethers } from 'ethers';
 import { notification } from 'antd';
 
@@ -22,7 +22,7 @@ const App = () => {
     }
   }});
 
-  const customProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount), "any");
+  const customProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount, SendTransactionMode.Gasless), "any");
   const [balance, setBalance] = useState(null);
 
   useEffect(() => {
