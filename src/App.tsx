@@ -17,7 +17,8 @@ const App = () => {
     clientKey: process.env.REACT_APP_CLIENT_KEY,
     appId: process.env.REACT_APP_APP_ID,
     aaOptions: {
-      simple: [{ chainId: Gnosis.id, version: '1.0.0' }]
+      accountContracts: {
+        SIMPLE: [{ chainIds: [Gnosis.id], version: '1.0.0' }],
     }
   });
 
