@@ -20,7 +20,7 @@ const App = () => {
       accountContracts: {
         SIMPLE: [{ chainIds: [Gnosis.id], version: '1.0.0' }],
     }
-  });
+  }});
 
   const customProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount), "any");
   const [balance, setBalance] = useState(null);
